@@ -2,6 +2,13 @@
 
 Todos los cambios relevantes de este proyecto se documentan en este archivo siguiendo el formato Keep a Changelog y Semantic Versioning.
 
+## [0.4.0] - 2026-10-29
+
+### Añadido
+- **Recorrido real de teclado `--mode {tab,both}` (`nvda_audit/web_client.py`)**:
+  - Ejecuta pulsaciones reales de `Tab` y registra la secuencia de `document.activeElement` en `domSnapshot.tabStops`.
+- **Generador desplegable de plantilla de bug A11Y de 6 secciones en `report.html` y limpieza de atributos efímeros (`data-nvda-step-idx`, `name="_r_N_"`) en snippets DOM (`nvda_audit/report.py`)**.
+
 ## [0.3.0] - 2026-10-28
 
 ### Añadido

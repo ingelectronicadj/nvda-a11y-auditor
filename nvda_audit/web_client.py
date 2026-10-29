@@ -541,7 +541,33 @@ const COLLECT_NVDA_ITEMS_JS = `(() => {
 
     const rawDom = await page.evaluate(job.dom_extract_js).catch(() => null);
     const domSnapshot = (typeof rawDom === 'string') ? JSON.parse(rawDom) : rawDom;
-    const rawItems = await page.evaluate(COLLECT_NVDA_ITEMS_JS).catch(() => []);
+    let rawItems = await page.evaluate(COLLECT_NVDA_ITEMS_JS).catch(() => []);
+    if (job.mode === 'tab' || job.mode === 'both') {
+      const tabStops = [];
+      await page.evaluate(() => { if (document.activeElement) document.activeElement.blur(); });
+      for (let t = 0; t < 25; t++) {
+        await page.keyboard.press('Tab');
+        await sleep(60);
+        const cur = await page.evaluate(() => {
+          const ae = document.activeElement;
+          if (!ae || ae === document.body) return null;
+          const tag = ae.tagName.toLowerCase();
+          const tid = ae.getAttribute('data-testid') || '';
+          if (tid.startsWith('DevTools')) return null;
+          const lbl = (ae.getAttribute('aria-label') || ae.innerText || ae.getAttribute('placeholder') || '').replace(/\s+/g, ' ').trim();
+          const r = ae.getBoundingClientRect();
+          return { tag, tid, lbl: lbl.slice(0, 80), x: Math.round(r.left), y: Math.round(r.top) };
+        }).catch(() => null);
+        if (cur) {
+          const key = cur.tag + ':' + cur.lbl + ':' + cur.x + ':' + cur.y;
+          if (tabStops.some(s => s.key === key)) break;
+          tabStops.push({ ...cur, key });
+        }
+      }
+      if (domSnapshot && typeof domSnapshot === 'object') {
+        domSnapshot.tabStops = tabStops;
+      }
+    }
     const maxSteps = Math.min(rawItems.length, v.max_steps || 70);
 
     const steps = [];

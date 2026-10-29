@@ -1,4 +1,4 @@
-# NVDA Audit (`v0.3.0`)
+# NVDA Audit (`v0.4.0`)
 
 Herramienta de auditoría lineal de accesibilidad para **Web Desktop con NVDA y Google Chrome** mediante **Chrome DevTools Protocol (CDP)**. Permite auditar aplicaciones web tradicionales y Single-Page Applications (`React`, `Angular`, `Vue`, `Web Components`) reproduciendo el recorrido del cursor virtual de NVDA (*Browse Mode*) y del foco de teclado (*Focus Mode*).
 
@@ -102,7 +102,7 @@ python3 nvda_audit.py --compare reportes/mi_app ../talkback_audit/reportes/mi_ap
 ├── reportes/                  # Reportes HTML, capturas y paquetes .zip (ignorados en git)
 ├── CHANGELOG.md               # Historial de cambios por versión
 ├── nvda_audit/
-│   ├── __init__.py            # Versión del paquete (VERSION = "0.3.0")
+│   ├── __init__.py            # Versión del paquete (VERSION = "0.4.0")
 │   ├── config.py              # Carga de configuración jerárquica y resolución de perfiles
 │   ├── web_client.py          # Motor Chrome CDP, Buffer Virtual NVDA, Speech Viewer y network_overrides
 │   ├── cdp.py                 # Extractor DOM / ARIA, W3C ACCNAME 1.2, IndexedDB i18n y capa de origen
