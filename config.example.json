@@ -1,0 +1,30 @@
+{
+  "locale": "en-US",
+  "viewport_width": 1440,
+  "viewport_height": 900,
+  "headless": true,
+  "login_url": "",
+  "target_url": "https://example.com",
+  "auth": {
+    "doc_type": "",
+    "username": "",
+    "password": "",
+    "entry_quick_action": ""
+  },
+  "i18n_db_name": "",
+  "jira_base_url": "",
+  "jira_bugs": [],
+  "network_overrides": {},
+  "views": {
+    "01_home": {
+      "title": "Home - Web Desktop Audit",
+      "short_title": "1. Home",
+      "scope_tag": "Home",
+      "steps": 60,
+      "out": "reportes/example_web/01_home",
+      "cdp_steps": [
+        { "spa_path": "/", "wait_sec": 3.0 }
+      ]
+    }
+  }
+}
