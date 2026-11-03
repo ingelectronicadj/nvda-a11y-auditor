@@ -2,6 +2,14 @@
 
 Todos los cambios relevantes de este proyecto se documentan en este archivo siguiendo el formato Keep a Changelog y Semantic Versioning.
 
+## [0.5.0] - 2026-11-03
+
+### Añadido
+- **`--doctor` y diagnóstico de red accionable (`nvda_audit/doctor.py`, `nvda_audit.py`)**:
+  - `--doctor` verifica el entorno completo: Python >= 3.9, Node.js, resolucion de `puppeteer` en las rutas soportadas por `loadPuppeteer()` (incluidas las de Windows), Chrome multiplataforma via `find_chrome_binary()` y conectividad TCP a `login_url`/`target_url`/`hybrid_cdn_url`.
+  - Cada fallo imprime la acción correctiva (p. ej. "requiere VPN corporativa activa" en dominios internos); sale con código distinto de 0 si hay fallos.
+  - Toda corrida ejecuta un preflight de red antes de lanzar Chrome y aborta con la causa probable si algun endpoint es inalcanzable, en lugar de colgar en timeouts de navegacion.
+
 ## [0.4.2] - 2026-11-03
 
 ### Corregido

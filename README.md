@@ -43,6 +43,9 @@ cd nvda-a11y-auditor
 python3 nvda_audit.py --version
 python3 nvda_audit.py --self-test
 
+# 2b. Diagnosticar el entorno (Python, Node, puppeteer, Chrome, endpoints/VPN)
+python3 nvda_audit.py --doctor --profile mi_app
+
 # 3. Crear un perfil local a partir de la plantilla
 mkdir -p profiles
 cp config.example.json profiles/mi_app.local.json
@@ -75,6 +78,7 @@ python3 nvda_audit.py --compare reportes/mi_app ../talkback_audit/reportes/mi_ap
 |---|---|---|
 | `--version` | Muestra la versión instalada y termina | - |
 | `--self-test` | Valida los 86 criterios WCAG 2.2, las 16 reglas `NVDA-*` y el generador HTML | - |
+| `--doctor` | Preflight del entorno: Python, Node.js, resolución de puppeteer, Chrome multiplataforma y conectividad a los endpoints del perfil (con pista VPN en dominios internos). Sale con código != 0 si hay fallos | - |
 | `--profile NAME`, `-p` | Carga el perfil `profiles/<NAME>.local.json` | Auto |
 | `--config FILE` | Ruta a un archivo JSON de configuración personalizada | `profiles/*.local.json` |
 | `--url URL` | URL directa a auditar cuando no se usa el mapa `views` del perfil | `target_url` del perfil |
@@ -102,8 +106,9 @@ python3 nvda_audit.py --compare reportes/mi_app ../talkback_audit/reportes/mi_ap
 ├── reportes/                  # Reportes HTML, capturas y paquetes .zip (ignorados en git)
 ├── CHANGELOG.md               # Historial de cambios por versión
 ├── nvda_audit/
-│   ├── __init__.py            # Versión del paquete (VERSION = "0.4.2")
+│   ├── __init__.py            # Versión del paquete
 │   ├── config.py              # Carga de configuración jerárquica y resolución de perfiles
+│   ├── doctor.py              # Preflight --doctor y diagnóstico de red (probes TCP + pistas VPN)
 │   ├── web_client.py          # Motor Chrome CDP, Buffer Virtual NVDA, Speech Viewer y network_overrides
 │   ├── cdp.py                 # Extractor DOM / ARIA, W3C ACCNAME 1.2, IndexedDB i18n y capa de origen
 │   ├── wcag_catalog.py        # Taxonomía oficial WCAG 2.2 (86 criterios) y catálogo de 16 reglas NVDA-*

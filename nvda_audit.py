@@ -21,6 +21,7 @@ from nvda_audit import VERSION
 from nvda_audit.cdp import match_dom_element
 from nvda_audit.compare import build_comparison_suite
 from nvda_audit.config import load_config
+from nvda_audit.doctor import check_sso_endpoints, net_hint, run_doctor
 from nvda_audit.report import build_report, build_suite_index, rebuild_report
 from nvda_audit.rules import is_a11y_relevant, text_a11y_issues
 from nvda_audit.wcag_catalog import WCAG_CATALOG, WCAG_CRITERIA, WCAG_ORDER, resolve_wcag_meta
@@ -82,6 +83,7 @@ def main():
     )
     ap.add_argument("--config", metavar="FILE", help="archivo JSON de configuración opcional")
     ap.add_argument("--self-test", action="store_true", help="ejecuta autovalidación interna y sale")
+    ap.add_argument("--doctor", action="store_true", help="verifica el entorno (Python, Node, puppeteer, Chrome, red) y sale")
     ap.add_argument(
         "--view",
         metavar="VIEW_ID",
@@ -121,6 +123,10 @@ def main():
         cfg["locale"] = args.locale
     if args.headed:
         cfg["headless"] = False
+
+    if args.doctor:
+        print("Perfil activo: %s" % args.profile)
+        raise SystemExit(run_doctor(cfg))
 
     if args.compare:
         other_dir, nvda_dir = args.compare
@@ -177,6 +183,16 @@ def main():
             "max_steps": int(args.steps or v_spec.get("steps") or 75),
             "cdp_steps": v_spec.get("cdp_steps") or [],
         })
+
+    bad_eps = check_sso_endpoints(cfg)
+    if bad_eps:
+        from urllib.parse import urlparse
+
+        print("\n[ERROR] Endpoints de red inalcanzables (abortando antes de lanzar Chrome):")
+        for key, url, det in bad_eps:
+            print("  - %s (%s): %s" % (urlparse(url).hostname or url, key, det))
+        print("  -> %s" % net_hint(bad_eps[0][1]))
+        raise SystemExit(3)
 
     client = WebClient(cfg)
     results = client.run_views(views_payload, mode=args.mode, test_modals=args.test_modals)
