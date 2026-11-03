@@ -3,9 +3,48 @@
 import json
 import os
 import subprocess
+import sys
 import tempfile
 from .cdp import DOM_EXTRACT_JS
 from .config import SCRIPT_DIR
+
+
+def find_chrome_binary(cfg=None):
+    """Resuelve el ejecutable de Chrome multiplataforma:
+    cfg['chrome_path'] > $CHROME_PATH > rutas por defecto de cada SO.
+    Devuelve None si no encuentra ninguna (puppeteer caera a su bundled Chrome)."""
+    cfg_path = (cfg or {}).get("chrome_path")
+    if cfg_path and os.path.exists(cfg_path):
+        return cfg_path
+    env = os.environ.get("CHROME_PATH")
+    if env and os.path.exists(env):
+        return env
+    if sys.platform == "win32":
+        candidates = [
+            os.path.join(
+                os.environ.get("PROGRAMFILES", r"C:\Program Files"),
+                "Google", "Chrome", "Application", "chrome.exe",
+            ),
+            os.path.join(
+                os.environ.get("PROGRAMFILES(X86)", r"C:\Program Files (x86)"),
+                "Google", "Chrome", "Application", "chrome.exe",
+            ),
+            os.path.join(
+                os.environ.get("LOCALAPPDATA", os.path.expanduser(r"~\AppData\Local")),
+                "Google", "Chrome", "Application", "chrome.exe",
+            ),
+        ]
+    elif sys.platform == "darwin":
+        candidates = ["/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"]
+    else:
+        candidates = [
+            "/usr/bin/google-chrome",
+            "/usr/bin/google-chrome-stable",
+            "/usr/bin/chromium",
+            "/usr/bin/chromium-browser",
+            "/opt/google/chrome/chrome",
+        ]
+    return next((c for c in candidates if os.path.exists(c)), None)
 
 
 NVDA_RUNNER_JS = r"""
@@ -16,6 +55,9 @@ function loadPuppeteer() {
   const candidates = [
     path.join(process.env.HOME || '', '.npm-global/lib/node_modules/pa11y/node_modules/puppeteer'),
     '/usr/local/lib/node_modules/pa11y/node_modules/puppeteer',
+    path.join(process.env.APPDATA || '', 'npm/node_modules/pa11y/node_modules/puppeteer'),
+    path.join(process.env.APPDATA || '', 'npm/node_modules/puppeteer'),
+    path.join(process.env.NPM_CONFIG_PREFIX || '', 'lib/node_modules/puppeteer'),
     'puppeteer'
   ];
   for (const c of candidates) {
@@ -487,12 +529,13 @@ const COLLECT_NVDA_ITEMS_JS = `(() => {
 })()`;
 
 (async () => {
-  const browser = await puppeteer.launch({
+  const launchOpts = {
     headless: job.headless ? 'new' : false,
-    executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
     defaultViewport: { width: job.viewport_width || 1440, height: job.viewport_height || 900 },
     args: ['--no-sandbox', '--disable-setuid-sandbox', '--lang=' + (job.locale || 'en-US')]
-  });
+  };
+  if (job.chrome_path) launchOpts.executablePath = job.chrome_path;
+  const browser = await puppeteer.launch(launchOpts);
 
   const page = await browser.newPage();
   const netOverrides = (job.cfg && job.cfg.network_overrides) || {};
@@ -767,6 +810,7 @@ class WebClient:
                 f.write(NVDA_RUNNER_JS)
             job = {
                 "cfg": self.cfg,
+                "chrome_path": find_chrome_binary(self.cfg),
                 "locale": self.cfg.get("locale") or "en-US",
                 "headless": bool(self.cfg.get("headless", True)),
                 "viewport_width": int(self.cfg.get("viewport_width", 1440)),

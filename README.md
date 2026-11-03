@@ -26,9 +26,9 @@ Automatiza el recorrido lineal paso a paso sobre cada vista, modal o drawer, dib
 
 ## Requisitos
 
-- **macOS, Linux o Windows** con **Google Chrome** instalado.
+- **macOS, Linux o Windows** con **Google Chrome** instalado. El ejecutable se detecta automáticamente en las rutas por defecto de cada SO (`/Applications/...` en macOS, `%PROGRAMFILES%\Google\Chrome\Application\chrome.exe` en Windows, `/usr/bin/google-chrome` en Linux); se puede sobreescribir con `chrome_path` en el perfil o la variable `CHROME_PATH`.
 - **Python 3.9+** (usa únicamente la biblioteca estándar de Python; cero dependencias `pip` externas).
-- **Node.js 18+** con `puppeteer` o `puppeteer-core` disponible para la conexión Chrome CDP.
+- **Node.js 18+** con `puppeteer` o `puppeteer-core` disponible para la conexión Chrome CDP (en Windows se busca tambien en `%APPDATA%\npm\node_modules`). En Windows usar `py -3` en lugar de `python3`.
 
 ---
 
@@ -102,7 +102,7 @@ python3 nvda_audit.py --compare reportes/mi_app ../talkback_audit/reportes/mi_ap
 ├── reportes/                  # Reportes HTML, capturas y paquetes .zip (ignorados en git)
 ├── CHANGELOG.md               # Historial de cambios por versión
 ├── nvda_audit/
-│   ├── __init__.py            # Versión del paquete (VERSION = "0.4.0")
+│   ├── __init__.py            # Versión del paquete (VERSION = "0.4.1")
 │   ├── config.py              # Carga de configuración jerárquica y resolución de perfiles
 │   ├── web_client.py          # Motor Chrome CDP, Buffer Virtual NVDA, Speech Viewer y network_overrides
 │   ├── cdp.py                 # Extractor DOM / ARIA, W3C ACCNAME 1.2, IndexedDB i18n y capa de origen

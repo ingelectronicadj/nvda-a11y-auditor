@@ -2,6 +2,14 @@
 
 Todos los cambios relevantes de este proyecto se documentan en este archivo siguiendo el formato Keep a Changelog y Semantic Versioning.
 
+## [0.4.1] - 2026-11-03
+
+### Corregido
+- **Soporte real de Windows como SO anfitrion (`nvda_audit/web_client.py`)**:
+  - El `executablePath` de Chrome estaba fijado a la ruta de macOS (`/Applications/Google Chrome.app/...`), lo que impedia lanzar el navegador en Windows y Linux.
+  - Nuevo `find_chrome_binary()`: resuelve el ejecutable por `chrome_path` del perfil, `$CHROME_PATH`, o las rutas por defecto de cada SO (`%PROGRAMFILES%\Google\Chrome\Application\chrome.exe` y `%LOCALAPPDATA%\...` en Windows, `/usr/bin/google-chrome`/`chromium` en Linux, `.app` en macOS). Si no lo encuentra, puppeteer usa su Chrome for Testing empaquetado.
+  - `loadPuppeteer()` ahora tambien busca en `%APPDATA%\npm\node_modules` (npm global en Windows) y `$NPM_CONFIG_PREFIX`.
+
 ## [0.4.0] - 2026-10-29
 
 ### Añadido

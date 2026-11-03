@@ -1,5 +1,6 @@
 {
   "locale": "en-US",
+  "chrome_path": "",
   "viewport_width": 1440,
   "viewport_height": 900,
   "headless": true,
