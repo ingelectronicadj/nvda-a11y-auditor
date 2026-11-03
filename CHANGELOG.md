@@ -2,6 +2,14 @@
 
 Todos los cambios relevantes de este proyecto se documentan en este archivo siguiendo el formato Keep a Changelog y Semantic Versioning.
 
+## [0.4.2] - 2026-11-03
+
+### Corregido
+- **Genericidad del repo publico (`nvda_audit/config.py`, `nvda_audit/web_client.py`)**:
+  - Eliminados los defaults especificos de producto que quedaron del caso de uso original: `entry_quick_action: "Crypto"`, la exclusion del H1 `cryptocurrencies` y el selector `[data-testid="microfrontend-broker"]`.
+  - `entry_quick_action` ahora es vacio por defecto y el clic post-login solo se ejecuta si el perfil lo define (antes, un valor vacio hubiera hecho clic en el primer elemento sin texto).
+  - La espera de carga de vista SPA compara el H1 con el de la vista anterior en lugar de excluir titulos concretos; la espera post-login compara con el H1 del hub en lugar de excluir `overview`.
+
 ## [0.4.1] - 2026-11-03
 
 ### Corregido

@@ -45,7 +45,7 @@ DEFAULT_CONFIG = {
         "doc_type": "Email",
         "username": os.environ.get("NVDA_USER", ""),
         "password": os.environ.get("NVDA_PASSWORD", ""),
-        "entry_quick_action": "Crypto",
+        "entry_quick_action": "",
     },
     "i18n_db_name": os.environ.get("NVDA_I18N_DB", ""),
     "jira_base_url": os.environ.get("NVDA_JIRA_BASE_URL", ""),

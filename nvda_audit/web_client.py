@@ -137,22 +137,29 @@ async function performLogin(page, cfg) {
     if (sub) sub.click();
   }).catch(() => {});
 
-  const quickAction = auth.entry_quick_action || 'Crypto';
-  for (let i = 0; i < 18; i++) {
-    await sleep(1500);
-    await applyKeepAlive(page);
-    const clicked = await page.evaluate((qa) => {
-      const els = Array.from(document.querySelectorAll('button, a, [role="button"]'));
-      const btn = els.find(el => (el.innerText || '').trim() === qa || (el.getAttribute('aria-label') || '').includes(qa));
-      if (btn) {
-        btn.click();
-        return true;
+  const hubH1 = await page.evaluate(() => {
+    const h = document.querySelector('main h1, h1');
+    return h ? h.innerText.trim() : '';
+  }).catch(() => '');
+
+  const quickAction = auth.entry_quick_action || '';
+  if (quickAction) {
+    for (let i = 0; i < 18; i++) {
+      await sleep(1500);
+      await applyKeepAlive(page);
+      const clicked = await page.evaluate((qa) => {
+        const els = Array.from(document.querySelectorAll('button, a, [role="button"]'));
+        const btn = els.find(el => (el.innerText || '').trim() === qa || (el.getAttribute('aria-label') || '').includes(qa));
+        if (btn) {
+          btn.click();
+          return true;
+        }
+        return false;
+      }, quickAction).catch(() => false);
+      if (clicked) {
+        console.log('      [NVDA Web] quick action "' + quickAction + '" activada tras el login');
+        break;
       }
-      return false;
-    }, quickAction).catch(() => false);
-    if (clicked) {
-      console.log('      [NVDA Web] quick action "' + quickAction + '" activada en Global Position');
-      break;
     }
   }
 
@@ -162,7 +169,7 @@ async function performLogin(page, cfg) {
       const h = document.querySelector('main h1, h1');
       return h ? h.innerText.trim() : '';
     }).catch(() => '');
-    if (ready && ready.toLowerCase() !== 'overview' && !page.url().includes('/login')) {
+    if (ready && ready !== hubH1 && !page.url().includes('/login')) {
       console.log('      [NVDA Web] módulo cargado -> H1: "' + ready + '" (' + page.url() + ')');
       break;
     }
@@ -173,6 +180,10 @@ async function runViewSteps(page, steps) {
   let lastTransitionFocusIssue = '';
   for (const st of (steps || [])) {
     if (st.spa_path) {
+      const prevH1 = await page.evaluate(() => {
+        const h = document.querySelector('main h1, h1');
+        return h ? h.innerText.trim() : '';
+      }).catch(() => '');
       await page.evaluate((p) => {
         const closeBtn = document.querySelector('[role="dialog"] button[aria-label="Close"], [role="dialog"] button[data-testid="close-button"]');
         if (closeBtn) closeBtn.click();
@@ -181,11 +192,11 @@ async function runViewSteps(page, steps) {
       }, st.spa_path).catch(() => {});
       for (let w = 0; w < 12; w++) {
         await sleep(800);
-        const hasBrokerH1 = await page.evaluate(() => {
-          const h1 = document.querySelector('[data-testid="microfrontend-broker"] h1, main h1');
-          return h1 && h1.innerText && h1.innerText.trim().toLowerCase() !== 'cryptocurrencies';
-        }).catch(() => false);
-        if (hasBrokerH1) break;
+        const h1Changed = await page.evaluate((prev) => {
+          const h1 = document.querySelector('main h1, h1');
+          return h1 && h1.innerText && h1.innerText.trim() !== prev;
+        }, prevH1).catch(() => false);
+        if (h1Changed) break;
       }
     }
     if (st.click || st.click_selector) {
